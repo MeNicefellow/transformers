@@ -97,7 +97,7 @@ class LlamaRotaryEmbedding(nn.Module):
         device_type = device_type if isinstance(device_type, str) and device_type != "mps" else "cpu"
         with torch.autocast(device_type=device_type, enabled=False):
             freqs = (inv_freq_expanded.float() @ position_ids_expanded.float()).transpose(1, 2)
-            emb = torch.cat((freqs, freqs), dim=-1)
+            emb = torch.stack((freqs, freqs), dim=-1).view(freqs.shape[0], freqs.shape[1], -1)
             cos = emb.cos()
             sin = emb.sin()
         return cos.to(dtype=x.dtype), sin.to(dtype=x.dtype)
